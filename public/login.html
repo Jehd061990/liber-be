@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Liber Login</title>
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body>
+    <main class="login">
+      <section class="card">
+        <h1>Welcome back</h1>
+        <p>Login to Liber</p>
+        <form id="loginForm">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+          />
+
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Your password"
+            required
+          />
+
+          <button type="submit">Login</button>
+          <div id="status" class="status" role="status"></div>
+        </form>
+      </section>
+    </main>
+    <script src="/login.js"></script>
+  </body>
+</html>
