@@ -17,7 +17,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: ["https://your-frontend.onrender.com", "http://localhost:3000"],
+    origin: ["https://liber-fe.onrender.com", "http://localhost:3000"],
     credentials: true,
   }),
 );
