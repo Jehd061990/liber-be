@@ -15,7 +15,12 @@ const { swaggerSpec } = require("./config/swagger");
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://your-frontend.onrender.com", "http://localhost:3000"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));

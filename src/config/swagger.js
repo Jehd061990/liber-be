@@ -12,6 +12,10 @@ const swaggerDefinition = {
       url: "http://localhost:5000",
       description: "Local server",
     },
+    {
+      url: "https://liber-be.onrender.com",
+      description: "Production server",
+    },
   ],
   components: {
     securitySchemes: {
@@ -197,6 +201,7 @@ const swaggerDefinition = {
     "/api/books": {
       get: {
         summary: "List books",
+        security: [{ bearerAuth: [] }],
         responses: {
           200: {
             description: "OK",
