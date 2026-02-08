@@ -7,6 +7,11 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "API documentation for liber-be",
   },
+  tags: [
+    { name: "Auth", description: "Authentication" },
+    { name: "Books", description: "CRUD for books" },
+    { name: "Health", description: "Health checks" },
+  ],
   servers: [
     {
       url: "http://localhost:5000",
@@ -68,10 +73,19 @@ const swaggerDefinition = {
         properties: {
           id: { type: "string" },
           title: { type: "string" },
-          author: { type: "string" },
+          bookAuthor: { type: "string" },
+          isbn: { type: "string" },
+          publisher: { type: "string" },
+          category: { type: "string" },
           description: { type: "string" },
           genre: { type: "string" },
-          coverUrl: { type: "string" },
+          coverImage: { type: "string" },
+          barcode: { type: "string" },
+          qrCode: { type: "string" },
+          shelfLocation: { type: "string" },
+          status: { type: "string" },
+          availableCopies: { type: "number" },
+          totalCopies: { type: "number" },
           publishedYear: { type: "number" },
           createdBy: { type: "string" },
           createdAt: { type: "string" },
@@ -80,16 +94,42 @@ const swaggerDefinition = {
       },
       BookCreateRequest: {
         type: "object",
-        required: ["title", "author"],
+        required: ["title", "bookAuthor"],
         properties: {
           title: { type: "string", example: "The Alchemist" },
-          author: { type: "string", example: "Paulo Coelho" },
+          bookAuthor: { type: "string", example: "Book author" },
+          availableCopies: { type: "number", example: 1 },
+          barcode: { type: "string", example: "456" },
+          category: { type: "string", example: "Non-Fiction" },
           description: { type: "string", example: "A classic novel." },
-          genre: { type: "string", example: "Fiction" },
-          coverUrl: {
-            type: "string",
-            example: "https://example.com/cover.jpg",
-          },
+          genre: { type: "string", example: "Horror" },
+          coverImage: { type: "string", example: "" },
+          isbn: { type: "string", example: "32423-3999" },
+          publisher: { type: "string", example: "Web book" },
+          qrCode: { type: "string", example: "236" },
+          shelfLocation: { type: "string", example: "a-6" },
+          status: { type: "string", example: "Available" },
+          totalCopies: { type: "number", example: 1 },
+          publishedYear: { type: "number", example: 1988 },
+        },
+      },
+      BookUpdateRequest: {
+        type: "object",
+        properties: {
+          title: { type: "string", example: "Book title" },
+          bookAuthor: { type: "string", example: "Book author" },
+          availableCopies: { type: "number", example: 1 },
+          barcode: { type: "string", example: "456" },
+          category: { type: "string", example: "Non-Fiction" },
+          description: { type: "string", example: "A classic novel." },
+          genre: { type: "string", example: "Horror" },
+          coverImage: { type: "string", example: "" },
+          isbn: { type: "string", example: "32423-3999" },
+          publisher: { type: "string", example: "Web book" },
+          qrCode: { type: "string", example: "236" },
+          shelfLocation: { type: "string", example: "a-6" },
+          status: { type: "string", example: "Available" },
+          totalCopies: { type: "number", example: 1 },
           publishedYear: { type: "number", example: 1988 },
         },
       },
@@ -102,12 +142,19 @@ const swaggerDefinition = {
           },
         },
       },
+      BookResponse: {
+        type: "object",
+        properties: {
+          book: { $ref: "#/components/schemas/Book" },
+        },
+      },
     },
   },
   paths: {
     "/api/health": {
       get: {
         summary: "Health check",
+        tags: ["Health"],
         responses: {
           200: {
             description: "OK",
@@ -123,6 +170,7 @@ const swaggerDefinition = {
     "/api/auth/register": {
       post: {
         summary: "Register a user",
+        tags: ["Auth"],
         requestBody: {
           required: true,
           content: {
@@ -162,6 +210,7 @@ const swaggerDefinition = {
     "/api/auth/login": {
       post: {
         summary: "Login",
+        tags: ["Auth"],
         requestBody: {
           required: true,
           content: {
@@ -201,6 +250,7 @@ const swaggerDefinition = {
     "/api/books": {
       get: {
         summary: "List books",
+        tags: ["Books"],
         security: [{ bearerAuth: [] }],
         responses: {
           200: {
@@ -215,6 +265,7 @@ const swaggerDefinition = {
       },
       post: {
         summary: "Add a book",
+        tags: ["Books"],
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -248,6 +299,107 @@ const swaggerDefinition = {
           },
           401: {
             description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/books/{id}": {
+      put: {
+        summary: "Update a book",
+        tags: ["Books"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BookUpdateRequest" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BookResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        summary: "Delete a book",
+        tags: ["Books"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/ErrorResponse" },

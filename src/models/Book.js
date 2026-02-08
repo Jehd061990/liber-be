@@ -7,9 +7,21 @@ const bookSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    author: {
+    bookAuthor: {
       type: String,
       required: true,
+      trim: true,
+    },
+    isbn: {
+      type: String,
+      trim: true,
+    },
+    publisher: {
+      type: String,
+      trim: true,
+    },
+    category: {
+      type: String,
       trim: true,
     },
     description: {
@@ -20,9 +32,34 @@ const bookSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    coverUrl: {
+    coverImage: {
       type: String,
       trim: true,
+    },
+    barcode: {
+      type: String,
+      trim: true,
+    },
+    qrCode: {
+      type: String,
+      trim: true,
+    },
+    shelfLocation: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+      trim: true,
+      default: "Available",
+    },
+    availableCopies: {
+      type: Number,
+      default: 0,
+    },
+    totalCopies: {
+      type: Number,
+      default: 0,
     },
     publishedYear: {
       type: Number,
