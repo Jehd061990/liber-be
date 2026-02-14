@@ -252,6 +252,106 @@ const swaggerDefinition = {
         summary: "List books",
         tags: ["Books"],
         security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string" },
+            description:
+              "Free text search across title, author, ISBN, publisher, category, description, genre, barcode, QR code, and shelf location.",
+          },
+          {
+            name: "title",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "bookAuthor",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "author",
+            in: "query",
+            schema: { type: "string" },
+            description: "Alias for bookAuthor",
+          },
+          {
+            name: "isbn",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "publisher",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "category",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "genre",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "shelfLocation",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "barcode",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "qrCode",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "publishedYear",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "publishedYearFrom",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "publishedYearTo",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "availableCopiesMin",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "availableCopiesMax",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "totalCopiesMin",
+            in: "query",
+            schema: { type: "number" },
+          },
+          {
+            name: "totalCopiesMax",
+            in: "query",
+            schema: { type: "number" },
+          },
+        ],
         responses: {
           200: {
             description: "OK",
