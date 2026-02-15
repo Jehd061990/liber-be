@@ -10,6 +10,7 @@ dotenv.config();
 
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
+const readerRoutes = require("./routes/readerRoutes");
 const { swaggerSpec } = require("./config/swagger");
 
 const app = express();
@@ -35,6 +36,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
+app.use("/api/readers", readerRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
