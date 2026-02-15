@@ -11,6 +11,7 @@ const swaggerDefinition = {
     { name: "Auth", description: "Authentication" },
     { name: "Books", description: "CRUD for books" },
     { name: "Readers", description: "CRUD for readers" },
+    { name: "Borrows", description: "CRUD for borrowing books" },
     { name: "Health", description: "Health checks" },
   ],
   servers: [
@@ -232,6 +233,92 @@ const swaggerDefinition = {
         type: "object",
         properties: {
           reader: { $ref: "#/components/schemas/Reader" },
+        },
+      },
+      Borrow: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          reader: { $ref: "#/components/schemas/Reader" },
+          book: { $ref: "#/components/schemas/Book" },
+          borrowDate: { type: "string", format: "date-time" },
+          dueDate: { type: "string", format: "date-time" },
+          returnDate: { type: "string", format: "date-time" },
+          status: { type: "string", enum: ["Borrowed", "Returned", "Overdue"] },
+          notes: { type: "string" },
+          createdBy: { type: "string" },
+          createdAt: { type: "string" },
+          updatedAt: { type: "string" },
+        },
+      },
+      BorrowCreateRequest: {
+        type: "object",
+        required: ["reader", "book", "borrowDate"],
+        properties: {
+          reader: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e8" },
+          book: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e9" },
+          borrowDate: {
+            type: "string",
+            format: "date-time",
+            example: "2026-02-15T00:00:00.000Z",
+          },
+          dueDate: {
+            type: "string",
+            format: "date-time",
+            example: "2026-03-01T00:00:00.000Z",
+          },
+          status: {
+            type: "string",
+            enum: ["Borrowed", "Returned", "Overdue"],
+            example: "Borrowed",
+          },
+          notes: {
+            type: "string",
+            example: "Reader requested extended loan period",
+          },
+        },
+      },
+      BorrowUpdateRequest: {
+        type: "object",
+        properties: {
+          reader: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e8" },
+          book: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e9" },
+          borrowDate: {
+            type: "string",
+            format: "date-time",
+            example: "2026-02-15T00:00:00.000Z",
+          },
+          dueDate: {
+            type: "string",
+            format: "date-time",
+            example: "2026-03-01T00:00:00.000Z",
+          },
+          returnDate: {
+            type: "string",
+            format: "date-time",
+            example: "2026-02-28T00:00:00.000Z",
+          },
+          status: {
+            type: "string",
+            enum: ["Borrowed", "Returned", "Overdue"],
+            example: "Returned",
+          },
+          notes: { type: "string", example: "Book returned in good condition" },
+        },
+      },
+      BorrowListResponse: {
+        type: "object",
+        properties: {
+          borrows: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Borrow" },
+          },
+        },
+      },
+      BorrowResponse: {
+        type: "object",
+        properties: {
+          borrow: { $ref: "#/components/schemas/Borrow" },
         },
       },
     },
@@ -861,6 +948,268 @@ const swaggerDefinition = {
       delete: {
         summary: "Delete a reader",
         tags: ["Readers"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/borrows": {
+      get: {
+        summary: "List borrowed books",
+        tags: ["Borrows"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string" },
+            description: "Free text search across reader and book details.",
+          },
+          {
+            name: "reader",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filter by reader ID",
+          },
+          {
+            name: "book",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filter by book ID",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["Borrowed", "Returned", "Overdue"],
+            },
+          },
+          {
+            name: "borrowDateFrom",
+            in: "query",
+            schema: { type: "string", format: "date-time" },
+          },
+          {
+            name: "borrowDateTo",
+            in: "query",
+            schema: { type: "string", format: "date-time" },
+          },
+          {
+            name: "dueDateFrom",
+            in: "query",
+            schema: { type: "string", format: "date-time" },
+          },
+          {
+            name: "dueDateTo",
+            in: "query",
+            schema: { type: "string", format: "date-time" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BorrowListResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        summary: "Borrow a book",
+        tags: ["Borrows"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BorrowCreateRequest" },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BorrowResponse" },
+              },
+            },
+          },
+          400: {
+            description:
+              "Bad Request - Reader not active, book not available, borrowing limit reached, etc.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Reader or book not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/borrows/{id}": {
+      get: {
+        summary: "Get a borrow record by ID",
+        tags: ["Borrows"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Borrow record ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BorrowResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        summary: "Update a borrow record",
+        tags: ["Borrows"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BorrowUpdateRequest" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/BorrowResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          401: {
+            description: "Not authorized",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        summary: "Delete a borrow record",
+        tags: ["Borrows"],
         security: [{ bearerAuth: [] }],
         parameters: [
           {
