@@ -36,6 +36,18 @@ const FineSchema = new mongoose.Schema({
   paidAt: {
     type: Date,
   },
+  fineId: {
+    type: Number,
+    unique: true,
+    index: true,
+  },
 });
+
+FineSchema.virtual("fineIdString").get(function () {
+  return this.fineId ? `FID${this.fineId}` : undefined;
+});
+
+FineSchema.set("toJSON", { virtuals: true });
+FineSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Fine", FineSchema);

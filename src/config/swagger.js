@@ -320,16 +320,19 @@ const swaggerDefinition = {
         type: "object",
         properties: {
           _id: { type: "string" },
+          fineId: { type: "number", example: 1 },
+          fineIdString: { type: "string", example: "FID1" },
           reader: {
             type: "object",
             properties: {
               _id: { type: "string", example: "69920599229fb187c2186f11" },
               readerId: { type: "string", example: "R89DSFSDF" },
-              name: { type: "string", example: "John Doe" },
+              fullName: { type: "string", example: "John Doe" },
             },
           },
           type: { type: "string", enum: ["manual", "overdue"] },
           book: { type: "string", nullable: true },
+          bookTitle: { type: "string", example: "The Alchemist" },
           reason: { type: "string" },
           amount: { type: "number" },
           status: { type: "string", enum: ["unpaid", "paid"] },

@@ -1,12 +1,26 @@
 const Fine = require("../models/Fine");
 const Reader = require("../models/Reader");
 const Book = require("../models/Book");
+const Counter = require("../models/Counter");
 
 // Create a new fine
 exports.createFine = async (req, res) => {
   try {
     const { reader, type, book, reason, amount } = req.body;
-    const fine = new Fine({ reader, type, book, reason, amount });
+    // Get next fineId
+    let counter = await Counter.findOneAndUpdate(
+      { name: "fineId" },
+      { $inc: { value: 1 } },
+      { new: true, upsert: true },
+    );
+    const fine = new Fine({
+      reader,
+      type,
+      book,
+      reason,
+      amount,
+      fineId: counter.value,
+    });
     await fine.save();
     res.status(201).json(fine);
   } catch (err) {
@@ -26,7 +40,13 @@ exports.getFines = async (req, res) => {
     const fines = await Fine.find(query)
       .populate("reader", "fullName readerId")
       .populate("book", "title");
-    res.json(fines);
+    const finesWithVirtuals = fines.map((fine) => ({
+      ...fine.toObject(),
+      fineId: fine.fineId,
+      fineIdString: fine.fineIdString,
+      bookTitle: fine.book?.title || null,
+    }));
+    res.json(finesWithVirtuals);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -39,7 +59,13 @@ exports.getFine = async (req, res) => {
       .populate("reader", "fullName readerId")
       .populate("book", "title");
     if (!fine) return res.status(404).json({ error: "Fine not found" });
-    res.json(fine);
+    const fineObj = {
+      ...fine.toObject(),
+      fineId: fine.fineId,
+      fineIdString: fine.fineIdString,
+      bookTitle: fine.book?.title || null,
+    };
+    res.json(fineObj);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
