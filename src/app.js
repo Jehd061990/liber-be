@@ -12,6 +12,8 @@ const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 const readerRoutes = require("./routes/readerRoutes");
 const borrowRoutes = require("./routes/borrowRoutes");
+
+const fineRoutes = require("./routes/fineRoutes");
 const { swaggerSpec } = require("./config/swagger");
 
 const app = express();
@@ -39,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/readers", readerRoutes);
 app.use("/api/borrows", borrowRoutes);
+app.use("/api/fines", fineRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

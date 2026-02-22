@@ -12,6 +12,7 @@ const swaggerDefinition = {
     { name: "Books", description: "CRUD for books" },
     { name: "Readers", description: "CRUD for readers" },
     { name: "Borrows", description: "CRUD for borrowing books" },
+    { name: "Fines", description: "CRUD for fines and penalties" },
     { name: "Health", description: "Health checks" },
   ],
   servers: [
@@ -313,6 +314,58 @@ const swaggerDefinition = {
             type: "array",
             items: { $ref: "#/components/schemas/Borrow" },
           },
+        },
+      },
+      Fine: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          reader: { type: "string" },
+          type: { type: "string", enum: ["manual", "overdue"] },
+          book: { type: "string", nullable: true },
+          reason: { type: "string" },
+          amount: { type: "number" },
+          status: { type: "string", enum: ["unpaid", "paid"] },
+          createdAt: { type: "string", format: "date-time" },
+          paidAt: { type: "string", format: "date-time", nullable: true },
+        },
+      },
+      FineCreateRequest: {
+        type: "object",
+        required: ["reader", "type", "amount", "reason"],
+        properties: {
+          reader: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e8" },
+          type: {
+            type: "string",
+            enum: ["manual", "overdue"],
+            example: "manual",
+          },
+          book: { type: "string", example: "60d5ec49f1b2c8b1f8c8e8e9" },
+          amount: { type: "number", example: 5.0 },
+          reason: { type: "string", example: "Lost book" },
+        },
+      },
+      FineUpdateRequest: {
+        type: "object",
+        properties: {
+          amount: { type: "number", example: 5.0 },
+          reason: { type: "string", example: "Updated reason" },
+          status: { type: "string", enum: ["unpaid", "paid"] },
+        },
+      },
+      FineListResponse: {
+        type: "object",
+        properties: {
+          fines: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Fine" },
+          },
+        },
+      },
+      FineResponse: {
+        type: "object",
+        properties: {
+          fine: { $ref: "#/components/schemas/Fine" },
         },
       },
       BorrowResponse: {
@@ -976,6 +1029,211 @@ const swaggerDefinition = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/fines": {
+      get: {
+        summary: "List fines",
+        tags: ["Fines"],
+        parameters: [
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string" },
+            description: "Search by reason or reader.",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: { type: "string", enum: ["all", "unpaid", "paid"] },
+            description: "Filter by status.",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/FineListResponse" },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        summary: "Create a fine",
+        tags: ["Fines"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/FineCreateRequest" },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/FineResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/fines/{id}": {
+      get: {
+        summary: "Get a fine by ID",
+        tags: ["Fines"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Fine ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/FineResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        summary: "Update a fine",
+        tags: ["Fines"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/FineUpdateRequest" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/FineResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        summary: "Delete a fine",
+        tags: ["Fines"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { message: { type: "string" } },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/fines/{id}/pay": {
+      post: {
+        summary: "Mark fine as paid",
+        tags: ["Fines"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Fine ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/FineResponse" },
               },
             },
           },

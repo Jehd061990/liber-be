@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fines & Penalties</title>
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body>
+    <main class="login">
+      <section class="card">
+        <h1>Fines & Penalties</h1>
+        <div id="summary">
+          <div>Total Fines: <span id="totalFines">0</span></div>
+          <div>Unpaid Fines: <span id="unpaidFines">0</span></div>
+          <div>Amount Due: <span id="amountDue">$0.00</span></div>
+          <div>Paid Amount: <span id="paidAmount">$0.00</span></div>
+        </div>
+        <input id="search" placeholder="Search by reader, ID, or reason..." />
+        <div>
+          <button id="filterAll">ALL</button>
+          <button id="filterUnpaid">UNPAID</button>
+          <button id="filterPaid">PAID</button>
+        </div>
+        <button id="addFineBtn">Add Manual Fine</button>
+        <table id="finesTable">
+          <thead>
+            <tr>
+              <th>Reader</th>
+              <th>Type</th>
+              <th>Book/Reason</th>
+              <th>Amount</th>
+              <th>Created Date</th>
+              <th>Paid Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="noFines">No fines recorded yet.</div>
+      </section>
+      <div id="fineModal" class="modal" style="display: none">
+        <div class="modal-content">
+          <span id="closeModal" class="close">&times;</span>
+          <h2>Add Manual Fine</h2>
+          <form id="fineForm">
+            <label for="reader">Select Reader *</label>
+            <select id="reader" required></select>
+            <label for="amount">Fine Amount *</label>
+            <input id="amount" type="number" min="0.01" step="0.01" required />
+            <label for="reason">Reason for Fine *</label>
+            <textarea id="reason" required></textarea>
+            <div class="note">
+              This fine will be added manually and is separate from
+              auto-calculated overdue fines. The reader will need to pay this
+              fine before borrowing more books.
+            </div>
+            <button type="submit">Add Fine</button>
+          </form>
+        </div>
+      </div>
+    </main>
+    <script src="/fines.js"></script>
+  </body>
+</html>
