@@ -13,6 +13,8 @@ const swaggerDefinition = {
     { name: "Readers", description: "CRUD for readers" },
     { name: "Borrows", description: "CRUD for borrowing books" },
     { name: "Fines", description: "CRUD for fines and penalties" },
+    { name: "Subscriptions", description: "CRUD for subscriptions" },
+    { name: "WorkspaceOwners", description: "CRUD for workspace owners" },
     { name: "Health", description: "Health checks" },
   ],
   servers: [
@@ -314,6 +316,103 @@ const swaggerDefinition = {
             type: "array",
             items: { $ref: "#/components/schemas/Borrow" },
           },
+        },
+      },
+      Subscription: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          reader: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              readerId: { type: "string" },
+              fullName: { type: "string" },
+            },
+          },
+          plan: { type: "string", enum: ["basic", "premium", "enterprise"] },
+          startDate: { type: "string", format: "date-time" },
+          endDate: { type: "string", format: "date-time" },
+          status: { type: "string", enum: ["active", "expired", "cancelled"] },
+        },
+      },
+      SubscriptionCreateRequest: {
+        type: "object",
+        required: ["reader", "plan", "startDate", "endDate"],
+        properties: {
+          reader: { type: "string" },
+          plan: { type: "string", enum: ["basic", "premium", "enterprise"] },
+          startDate: { type: "string", format: "date-time" },
+          endDate: { type: "string", format: "date-time" },
+        },
+      },
+      SubscriptionUpdateRequest: {
+        type: "object",
+        properties: {
+          plan: { type: "string", enum: ["basic", "premium", "enterprise"] },
+          startDate: { type: "string", format: "date-time" },
+          endDate: { type: "string", format: "date-time" },
+          status: { type: "string", enum: ["active", "expired", "cancelled"] },
+        },
+      },
+      SubscriptionListResponse: {
+        type: "object",
+        properties: {
+          subscriptions: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Subscription" },
+          },
+        },
+      },
+      SubscriptionResponse: {
+        type: "object",
+        properties: {
+          subscription: { $ref: "#/components/schemas/Subscription" },
+        },
+      },
+      WorkspaceOwner: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          user: {
+            type: "object",
+            properties: {
+              _id: { type: "string" },
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+          },
+          workspaceName: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+        },
+      },
+      WorkspaceOwnerCreateRequest: {
+        type: "object",
+        required: ["user", "workspaceName"],
+        properties: {
+          user: { type: "string" },
+          workspaceName: { type: "string" },
+        },
+      },
+      WorkspaceOwnerUpdateRequest: {
+        type: "object",
+        properties: {
+          workspaceName: { type: "string" },
+        },
+      },
+      WorkspaceOwnerListResponse: {
+        type: "object",
+        properties: {
+          workspaceOwners: {
+            type: "array",
+            items: { $ref: "#/components/schemas/WorkspaceOwner" },
+          },
+        },
+      },
+      WorkspaceOwnerResponse: {
+        type: "object",
+        properties: {
+          workspaceOwner: { $ref: "#/components/schemas/WorkspaceOwner" },
         },
       },
       Fine: {
@@ -1244,6 +1343,334 @@ const swaggerDefinition = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/FineResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/subscriptions": {
+      get: {
+        summary: "List subscriptions",
+        tags: ["Subscriptions"],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/SubscriptionListResponse",
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        summary: "Create a subscription",
+        tags: ["Subscriptions"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/SubscriptionCreateRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/SubscriptionResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/subscriptions/{id}": {
+      get: {
+        summary: "Get a subscription by ID",
+        tags: ["Subscriptions"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Subscription ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/SubscriptionResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        summary: "Update a subscription",
+        tags: ["Subscriptions"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/SubscriptionUpdateRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/SubscriptionResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        summary: "Delete a subscription",
+        tags: ["Subscriptions"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { message: { type: "string" } },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/workspace-owners": {
+      get: {
+        summary: "List workspace owners",
+        tags: ["WorkspaceOwners"],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/WorkspaceOwnerListResponse",
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        summary: "Create a workspace owner",
+        tags: ["WorkspaceOwners"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/WorkspaceOwnerCreateRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Created",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/WorkspaceOwnerResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/workspace-owners/{id}": {
+      get: {
+        summary: "Get a workspace owner by ID",
+        tags: ["WorkspaceOwners"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Workspace owner ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/WorkspaceOwnerResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        summary: "Update a workspace owner",
+        tags: ["WorkspaceOwners"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/WorkspaceOwnerUpdateRequest",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/WorkspaceOwnerResponse" },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          404: {
+            description: "Not found",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        summary: "Delete a workspace owner",
+        tags: ["WorkspaceOwners"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { message: { type: "string" } },
+                },
               },
             },
           },
