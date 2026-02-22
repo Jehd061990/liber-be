@@ -320,7 +320,14 @@ const swaggerDefinition = {
         type: "object",
         properties: {
           _id: { type: "string" },
-          reader: { type: "string" },
+          reader: {
+            type: "object",
+            properties: {
+              _id: { type: "string", example: "69920599229fb187c2186f11" },
+              readerId: { type: "string", example: "R89DSFSDF" },
+              name: { type: "string", example: "John Doe" },
+            },
+          },
           type: { type: "string", enum: ["manual", "overdue"] },
           book: { type: "string", nullable: true },
           reason: { type: "string" },
