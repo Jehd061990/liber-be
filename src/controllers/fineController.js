@@ -24,7 +24,7 @@ exports.getFines = async (req, res) => {
       query.$or = [{ reason: { $regex: search, $options: "i" } }];
     }
     const fines = await Fine.find(query)
-      .populate("reader", "name readerId")
+      .populate("reader", "fullName readerId")
       .populate("book", "title");
     res.json(fines);
   } catch (err) {
@@ -36,7 +36,7 @@ exports.getFines = async (req, res) => {
 exports.getFine = async (req, res) => {
   try {
     const fine = await Fine.findById(req.params.id)
-      .populate("reader", "name readerId")
+      .populate("reader", "fullName readerId")
       .populate("book", "title");
     if (!fine) return res.status(404).json({ error: "Fine not found" });
     res.json(fine);
